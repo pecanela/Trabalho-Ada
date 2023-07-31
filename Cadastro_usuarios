@@ -1,0 +1,171 @@
+import json
+
+# Função para ler/salvar o arquivo
+def ler_salvar_arquivo(ler=True, nome_arquivo='projetoModuloII.json'):
+    if ler:
+        try:
+            with open(nome_arquivo, 'r') as arquivo:
+                return json.load(arquivo)
+        except FileNotFoundError:
+            return {}
+    else:
+        with open(nome_arquivo, 'w') as arquivo:
+            json.dump(usuarios, arquivo)
+
+# Função para adicionar usuários
+def add_usuario(**usuario):
+    global usuarios
+    for user_id, u in usuarios.items():
+        if u['Nome'] == usuario['Nome'] and u['Telefone'] == usuario['Telefone'] and u['Endereco'] == usuario['Endereco']:
+            if not u['Status']:
+                u['Status'] = True
+                print("Usuário ativado com sucesso!")
+                ler_salvar_arquivo(False)  # Salvar as alterações em tempo real
+                return
+            else:
+                print("Usuário já cadastrado e ativo!")
+                return
+    novo_id = str(int(max(usuarios, key=int)) + 1) if usuarios else "1"
+    usuario['Status'] = True
+    usuarios[novo_id] = usuario
+    print("Usuário cadastrado com sucesso!")
+    ler_salvar_arquivo(False)  # Salvar as alterações em tempo real
+
+# Função para excluir usuários (exclusão lógica)
+def excluir_usuario(*ids):
+    global usuarios
+    for user_id in ids:
+        if user_id in usuarios:
+            usuarios[user_id]['Status'] = False
+            print(f"Usuário {usuarios[user_id]['Nome']} excluído com sucesso.")
+        else:
+            print(f"Usuário com ID {user_id} não encontrado!")
+    ler_salvar_arquivo(False)  # Salvar as alterações em tempo real
+
+# Função para editar usuários
+def edit_usuario(usuario):
+    global usuarios
+    user_id = str(usuario['id'])
+    if user_id in usuarios:
+        u = usuarios[user_id]
+        print(f"Informações atuais do usuário {u['Nome']}:")
+        print(f"ID: {user_id}")
+        print(f"Nome: {u['Nome']}")
+        print(f"Telefone: {u['Telefone']}")
+        print(f"Endereço: {u['Endereco']}")
+        print()
+        print(sub_menu)
+        opcao = int(input())
+        if opcao == 1:
+            novo_nome = input("Insira o novo nome: ")
+            u['Nome'] = novo_nome
+        elif opcao == 2:
+            novo_telefone = input("Insira o novo telefone: ")
+            u['Telefone'] = novo_telefone
+        elif opcao == 3:
+            novo_endereco = input("Insira o novo endereço: ")
+            u['Endereco'] = novo_endereco
+        else:
+            print("Opção inválida!")
+            return
+        ler_salvar_arquivo(False)  # Salvar as alterações em tempo real
+        print("Usuário atualizado com sucesso!")
+    else:
+        print(f"Usuário com ID {user_id} não encontrado!")
+
+# Função para exibir alguns usuários
+def exibir_alguns_usuarios(*ids):
+    global usuarios
+    for user_id in ids:
+        if user_id in usuarios and usuarios[user_id]['Status']:
+            u = usuarios[user_id]
+            print(f"ID: {user_id}")
+            print(f"Nome: {u['Nome']}")
+            print(f"Telefone: {u['Telefone']}")
+            print(f"Endereço: {u['Endereco']}")
+            print()
+        else:
+            print(f"Usuário com ID {user_id} não encontrado!")
+
+# Função para exibir todos os usuários
+def exibir_todos_usuarios():
+    global usuarios
+    for user_id, u in usuarios.items():
+        if u['Status']:
+            print(f"ID: {user_id}")
+            print(f"Nome: {u['Nome']}")
+            print(f"Telefone: {u['Telefone']}")
+            print(f"Endereço: {u['Endereco']}")
+            print()
+
+# Função para encerrar o programa
+def encerrar_programa():
+    ler_salvar_arquivo(False)  # Salvar as alterações antes de encerrar
+
+# Menu principal
+menu_str = """
+Boas vindas ao nosso sistema:
+
+1 - Inserir usuário
+2 - Excluir usuário
+3 - Atualizar usuário
+4 - Informações de um usuário
+5 - Informações de todos os usuários
+6 - Sair
+"""
+
+sub_menu = """
+Qual informação deseja alterar?
+1 - Nome
+2 - Telefone
+3 - Endereço
+"""
+
+# Inicialização do programa
+usuarios = ler_salvar_arquivo()
+while True:
+    print(menu_str)
+    opcao = int(input())
+
+    if opcao == 1:
+        num_cadastros = int(input("Quantos cadastros deseja fazer? "))
+        for _ in range(num_cadastros):
+            nome = input("Insira o nome: ")
+            telefone = input("Insira o telefone: ")
+            endereco = input("Insira o endereço: ")
+
+            # Criando um dicionário com as informações do usuário
+            usuario = {
+                'Nome': nome,
+                'Telefone': telefone,
+                'Endereco': endereco
+            }
+
+            add_usuario(**usuario)  # Passando o dicionário como kwargs
+
+    elif opcao == 2:
+        ids_excluir = [id_str for id_str in input("Insira o(s) ID(s) do(s) usuário(s) a excluir (separados por espaço): ").split()]
+        excluir_usuario(*ids_excluir)
+
+    elif opcao == 3:
+        id_atualizar = input("Insira o ID do usuário a atualizar: ")
+        # Criando um dicionário com o ID do usuário
+        usuario_atualizar = {'id': id_atualizar}
+        edit_usuario(usuario_atualizar)
+
+    elif opcao == 4:
+        id_mostrar = input("Insira o ID do usuário a mostrar: ")
+        # Criando um dicionário com o ID do usuário
+        usuario_mostrar = {'id': id_mostrar}
+        exibir_alguns_usuarios(id_mostrar)
+
+    elif opcao == 5:
+        exibir_todos_usuarios()
+
+    elif opcao == 6:
+        encerrar_programa()
+        print("Programa encerrado.")
+        break
+
+    else:
+        print("Opção inválida! Escolha uma opção válida do menu.")
