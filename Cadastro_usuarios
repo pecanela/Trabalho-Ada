@@ -2,6 +2,9 @@ import json
 
 # Função para ler/salvar o arquivo
 def ler_salvar_arquivo(ler=True, nome_arquivo='projetoModuloII.json'):
+    # Função para ler ou salvar o arquivo de usuários em formato JSON
+    # Se 'ler' for True, lê o arquivo e retorna um dicionário com os usuários
+    # Se 'ler' for False, salva o dicionário 'usuarios' no arquivo
     if ler:
         try:
             with open(nome_arquivo, 'r') as arquivo:
@@ -14,17 +17,23 @@ def ler_salvar_arquivo(ler=True, nome_arquivo='projetoModuloII.json'):
 
 # Função para adicionar usuários
 def add_usuario(**usuario):
+    # Função para adicionar um usuário ao dicionário 'usuarios'
+    # Recebe as informações do usuário como um dicionário 'usuario'
     global usuarios
     for user_id, u in usuarios.items():
+        # Verifica se já existe um usuário com o mesmo nome, telefone e endereço
         if u['Nome'] == usuario['Nome'] and u['Telefone'] == usuario['Telefone'] and u['Endereco'] == usuario['Endereco']:
             if not u['Status']:
+                # Se o usuário existir e estiver inativo, ativa o usuário novamente
                 u['Status'] = True
                 print("Usuário ativado com sucesso!")
                 ler_salvar_arquivo(False)  # Salvar as alterações em tempo real
                 return
             else:
+                # Se o usuário já estiver ativo, informa que o usuário já está cadastrado
                 print("Usuário já cadastrado e ativo!")
                 return
+    # Se não encontrar um usuário com os mesmos dados, cria um novo ID para o usuário
     novo_id = str(int(max(usuarios, key=int)) + 1) if usuarios else "1"
     usuario['Status'] = True
     usuarios[novo_id] = usuario
@@ -33,9 +42,11 @@ def add_usuario(**usuario):
 
 # Função para excluir usuários (exclusão lógica)
 def excluir_usuario(*ids):
+    # Função para excluir um ou mais usuários do dicionário 'usuarios' (exclusão lógica)
     global usuarios
     for user_id in ids:
         if user_id in usuarios:
+            # Altera o status do usuário para inativo (exclusão lógica)
             usuarios[user_id]['Status'] = False
             print(f"Usuário {usuarios[user_id]['Nome']} excluído com sucesso.")
         else:
@@ -44,6 +55,7 @@ def excluir_usuario(*ids):
 
 # Função para editar usuários
 def edit_usuario(usuario):
+    # Função para editar as informações de um usuário
     global usuarios
     user_id = str(usuario['id'])
     if user_id in usuarios:
@@ -57,12 +69,15 @@ def edit_usuario(usuario):
         print(sub_menu)
         opcao = int(input())
         if opcao == 1:
+            # Atualiza o nome do usuário
             novo_nome = input("Insira o novo nome: ")
             u['Nome'] = novo_nome
         elif opcao == 2:
+            # Atualiza o telefone do usuário
             novo_telefone = input("Insira o novo telefone: ")
             u['Telefone'] = novo_telefone
         elif opcao == 3:
+            # Atualiza o endereço do usuário
             novo_endereco = input("Insira o novo endereço: ")
             u['Endereco'] = novo_endereco
         else:
@@ -75,9 +90,11 @@ def edit_usuario(usuario):
 
 # Função para exibir alguns usuários
 def exibir_alguns_usuarios(*ids):
+    # Função para exibir informações de alguns usuários a partir de seus IDs
     global usuarios
     for user_id in ids:
         if user_id in usuarios and usuarios[user_id]['Status']:
+            # Verifica se o usuário está ativo e exibe suas informações
             u = usuarios[user_id]
             print(f"ID: {user_id}")
             print(f"Nome: {u['Nome']}")
@@ -89,6 +106,7 @@ def exibir_alguns_usuarios(*ids):
 
 # Função para exibir todos os usuários
 def exibir_todos_usuarios():
+    # Função para exibir informações de todos os usuários ativos
     global usuarios
     for user_id, u in usuarios.items():
         if u['Status']:
@@ -100,6 +118,7 @@ def exibir_todos_usuarios():
 
 # Função para encerrar o programa
 def encerrar_programa():
+    # Função para encerrar o programa e salvar as alterações no arquivo
     ler_salvar_arquivo(False)  # Salvar as alterações antes de encerrar
 
 # Menu principal
